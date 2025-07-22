@@ -13,7 +13,7 @@ jobs:
     name: Build, Create Release, and Upload Artifact
     runs-on: ubuntu-latest
     container:
-      image: dtvmdev1/dtvm-sol-dev-x64:main
+      image: dtvmdev1/dtvm-sol-dev-x64:1.83.0
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -26,8 +26,6 @@ jobs:
           export CUR_PATH=$(pwd)
           # install rust
           /opt/install_rust.sh
-          rustup install 1.83.0
-          rustup default 1.83.0
 
           . "$HOME/.cargo/env"
           export PATH=$HOME/.cargo/bin:$PATH

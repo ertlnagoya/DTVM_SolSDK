@@ -19,7 +19,7 @@ jobs:
     name: Build and test DTVM_SolSDK on x86
     runs-on: ubuntu-latest
     container:
-      image: dtvmdev1/dtvm-sol-dev-x64:main
+      image: dtvmdev1/dtvm-sol-dev-x64:1.83.0
     steps:
       - name: Check out code
         uses: actions/checkout@v3
@@ -36,8 +36,6 @@ jobs:
 
           # install rust
           /opt/install_rust.sh
-          rustup install 1.83.0
-          rustup default 1.83.0
 
           # Install foundry
           curl -L https://foundry.paradigm.xyz | bash
