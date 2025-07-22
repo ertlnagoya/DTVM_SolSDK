@@ -7,7 +7,6 @@
 /// Url is https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/Strings.sol.
 /// The library provides functions for string operations, such as converting a `uint256` to a string.
 /// The test cases in this file are used to test the correctness of the library functions.
-
 #[allow(unused)]
 use super::test_helper::solidity_selector;
 #[allow(unused)]

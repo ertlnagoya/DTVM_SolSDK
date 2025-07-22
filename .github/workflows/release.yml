@@ -26,6 +26,8 @@ jobs:
           export CUR_PATH=$(pwd)
           # install rust
           /opt/install_rust.sh
+          rustup install 1.83.0
+          rustup default 1.83.0
 
           . "$HOME/.cargo/env"
           export PATH=$HOME/.cargo/bin:$PATH

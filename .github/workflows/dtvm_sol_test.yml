@@ -36,6 +36,8 @@ jobs:
 
           # install rust
           /opt/install_rust.sh
+          rustup install 1.83.0
+          rustup default 1.83.0
 
           # Install foundry
           curl -L https://foundry.paradigm.xyz | bash
