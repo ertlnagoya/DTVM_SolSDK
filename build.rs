@@ -32,54 +32,54 @@ pub fn copy_libs() -> io::Result<()> {
     Ok(())
 }
 
-fn main() {
+ffn main() {
     use std::env;
     use std::path::Path;
     use std::process::Command;
 
-    // ループ防止用の環境変数を確認
+    // Prevent recursive invocation of this build script by checking an environment flag
     let already_ran = env::var("SKIP_DEV_MAKE").is_ok();
 
     if !already_ran {
         let makefile = Path::new("dev.Makefile");
         if makefile.exists() {
-            println!("cargo:warning=Running make using dev.Makefile...");
+            println!("cargo:warning=Invoking Makefile 'dev.Makefile' as part of build process...");
 
-            // make 実行時に環境変数を与える
+            // Execute make with environment variable to avoid infinite recursion
             let status = Command::new("make")
                 .arg("-f")
                 .arg("dev.Makefile")
                 .env("SKIP_DEV_MAKE", "1")
                 .status()
-                .expect("Failed to run make");
+                .expect("Failed to execute make command");
 
             if !status.success() {
-                panic!("make failed with status: {:?}", status);
+                panic!("Makefile execution failed with status: {:?}", status);
             }
         } else {
-            println!("cargo:warning=dev.Makefile not found. Skipping make.");
+            println!("cargo:warning=Makefile 'dev.Makefile' not found; skipping make step.");
         }
     }
 
-    // ライブラリコピー（安全な unwrap）
+    // Attempt to copy required runtime libraries; log a warning on failure
     if let Err(err) = copy_libs() {
-        eprintln!("Warning: copy_libs failed: {}", err);
+        eprintln!("Warning: library copy operation failed: {}", err);
     }
 
-    // git describe でタグ取得（安全に）
+    // Attempt to retrieve Git version tag using `git describe --tags`, and inject as environment variable
     if let Ok(output) = Command::new("git").args(["describe", "--tags"]).output() {
         if let Ok(git_hash) = String::from_utf8(output.stdout) {
             println!("cargo:rustc-env=GIT_HASH={}", git_hash.trim());
         }
     }
 
-    // Static link LLVM libs
+    // Enable static linkage of LLVM libraries when building with the `release` feature
     #[cfg(feature = "release")]
     static_link_llvm();
 
-    // LALRPOP 生成処理
+    // Trigger LALRPOP parser generation; non-fatal if it fails
     if let Err(err) = lalrpop::process_root() {
-        eprintln!("Warning: lalrpop failed: {}", err);
+        eprintln!("Warning: LALRPOP grammar generation failed: {}", err);
     }
 }
 
