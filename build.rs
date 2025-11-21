@@ -33,23 +33,54 @@ pub fn copy_libs() -> io::Result<()> {
 }
 
 fn main() {
+    use std::env;
+    use std::path::Path;
     use std::process::Command;
-    Command::new("make").status().unwrap();
 
-    copy_libs().unwrap();
+    // ループ防止用の環境変数を確認
+    let already_ran = env::var("SKIP_DEV_MAKE").is_ok();
 
-    let output = Command::new("git")
-        .args(["describe", "--tags"])
-        .output()
-        .unwrap();
-    let git_hash = String::from_utf8(output.stdout).unwrap();
-    println!("cargo:rustc-env=GIT_HASH={git_hash}");
+    if !already_ran {
+        let makefile = Path::new("dev.Makefile");
+        if makefile.exists() {
+            println!("cargo:warning=Running make using dev.Makefile...");
+
+            // make 実行時に環境変数を与える
+            let status = Command::new("make")
+                .arg("-f")
+                .arg("dev.Makefile")
+                .env("SKIP_DEV_MAKE", "1")
+                .status()
+                .expect("Failed to run make");
+
+            if !status.success() {
+                panic!("make failed with status: {:?}", status);
+            }
+        } else {
+            println!("cargo:warning=dev.Makefile not found. Skipping make.");
+        }
+    }
+
+    // ライブラリコピー（安全な unwrap）
+    if let Err(err) = copy_libs() {
+        eprintln!("Warning: copy_libs failed: {}", err);
+    }
+
+    // git describe でタグ取得（安全に）
+    if let Ok(output) = Command::new("git").args(["describe", "--tags"]).output() {
+        if let Ok(git_hash) = String::from_utf8(output.stdout) {
+            println!("cargo:rustc-env=GIT_HASH={}", git_hash.trim());
+        }
+    }
 
     // Static link LLVM libs
     #[cfg(feature = "release")]
     static_link_llvm();
 
-    lalrpop::process_root().unwrap();
+    // LALRPOP 生成処理
+    if let Err(err) = lalrpop::process_root() {
+        eprintln!("Warning: lalrpop failed: {}", err);
+    }
 }
 
 #[allow(dead_code)]
