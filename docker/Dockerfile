@@ -34,8 +34,6 @@ RUN echo "export LLVM_SYS_160_PREFIX=/opt/llvm16" >> ~/.bash_profile
 ENV PATH=/opt/llvm16/bin:/opt:$PATH
 ENV LLVM_SYS_160_PREFIX=/opt/llvm16
 
-ENV RUSTUP_DIST_SERVER=https://mirrors.ustc.edu.cn/rust-static
-ENV RUSTUP_UPDATE_ROOT=https://mirrors.ustc.edu.cn/rust-static/rustup
 COPY install_rust.sh /opt/install_rust.sh
 RUN chmod +x /opt/install_rust.sh
 
