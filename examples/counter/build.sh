@@ -21,5 +21,10 @@ fi
 
 solc --ir --optimize-yul -o . --overwrite counter.sol
 
-$YUL2WASM_PATH --input Counter.yul --output counter.wasm $YUL2WASM_EXTRA_ARGS
+# solc outputs "<ContractName>.yul"; make sure yul2wasm sees the lowercase file name
+if [[ -f Counter.yul ]]; then
+    mv Counter.yul counter.yul
+fi
+cd
+$YUL2WASM_PATH --input counter.yul --output counter.wasm $YUL2WASM_EXTRA_ARGS
 wasm2wat -o counter.wat counter.wasm
