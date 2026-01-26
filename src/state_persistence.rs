@@ -1,6 +1,6 @@
 use ethereum_types::{H160, H256};
 use serde::{Deserialize, Serialize};
-use sled::{Config, Db, IVec};
+use sled::{Config, Db};
 use std::collections::{BTreeMap, HashMap};
 use std::fs;
 use std::io::{Read, Write};
@@ -104,9 +104,9 @@ impl StorageState {
     pub fn open(path: impl AsRef<Path>) -> anyhow::Result<Self> {
         let db = Config::new()
             .path(path.as_ref())
-            .mode(sled::Mode::HighThroughput)
             .open()
-            .ok();
+            .map(Some)
+            .unwrap_or(None);
         let json_path = path.as_ref().with_extension("json");
         let fallback = JsonFallback::new(json_path)?;
         Ok(Self { db, fallback })
