@@ -32,7 +32,7 @@ pub fn copy_libs() -> io::Result<()> {
     Ok(())
 }
 
-ffn main() {
+fn main() {
     use std::env;
     use std::path::Path;
     use std::process::Command;
