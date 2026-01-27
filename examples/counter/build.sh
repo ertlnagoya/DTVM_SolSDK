@@ -11,8 +11,10 @@ echo "Building in $BUILD_MODE mode"
 
 YUL2WASM_EXTRA_ARGS="--verbose"
 
-# Set the yul2wasm path based on the build mode
-if [ "$BUILD_MODE" == "release" ]; then
+# Respect externally chosen yul2wasm path
+if [ -n "$YUL2WASM_PATH" ]; then
+    echo "Using YUL2WASM_PATH=$YUL2WASM_PATH"
+elif [ "$BUILD_MODE" == "release" ]; then
     YUL2WASM_PATH="../../target/release/yul2wasm"
 else
     YUL2WASM_PATH="../../target/debug/yul2wasm"
