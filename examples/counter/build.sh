@@ -23,10 +23,23 @@ fi
 
 solc --ir --optimize-yul -o . --overwrite counter.sol
 
-# solc outputs "<ContractName>.yul"; make sure yul2wasm sees the lowercase file name
-if [[ -f Counter.yul ]]; then
-    mv Counter.yul counter.yul
+# solc outputs "<ContractName>.yul"; normalize the filename so we can target it explicitly
+YUL_FILE="counter.yul"
+if [[ ! -f "$YUL_FILE" ]]; then
+    if [[ -f Counter.yul ]]; then
+        mv Counter.yul counter.yul
+    else
+        YUL_FILE=$(ls *.yul 2>/dev/null | head -n 1 || true)
+        if [[ -n "$YUL_FILE" && "$YUL_FILE" != "counter.yul" ]]; then
+            mv "$YUL_FILE" counter.yul
+            YUL_FILE="counter.yul"
+        fi
+    fi
 fi
-cd
+if [[ ! -f "$YUL_FILE" ]]; then
+    echo "ERROR: no .yul file was generated" >&2
+    exit 1
+fi
+
 $YUL2WASM_PATH --input counter.yul --output counter.wasm $YUL2WASM_EXTRA_ARGS
 wasm2wat -o counter.wat counter.wasm
