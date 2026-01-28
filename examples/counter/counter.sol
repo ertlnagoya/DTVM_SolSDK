@@ -11,4 +11,8 @@ contract counter{
     function decrease() public{
         count--;
     }
+    
+    function setNoRevert(uint256 v) public {
+        count = v;
+    }
 }
