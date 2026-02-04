@@ -5,7 +5,11 @@ set -e
 # https://docs.soliditylang.org/en/latest/installing-solidity.html
 
 # Determine the build mode
-BUILD_MODE=${1:-release}
+BUILD_MODE=${2:-release}
+
+# Allow building an alternate Solidity file by passing it as the first argument.
+SOURCE_FILE=${1:-counter.sol}
+BASE_NAME=$(basename "$SOURCE_FILE" .sol)
 
 echo "Building in $BUILD_MODE mode"
 
@@ -21,25 +25,15 @@ else
     YUL2WASM_EXTRA_ARGS="--verbose --debug"
 fi
 
-solc --ir --optimize-yul -o . --overwrite counter.sol
+echo "Compiling $SOURCE_FILE"
+rm -f *.yul
+solc --ir --optimize-yul -o . --overwrite "$SOURCE_FILE"
 
-# solc outputs "<ContractName>.yul"; normalize the filename so we can target it explicitly
-YUL_FILE="counter.yul"
-if [[ ! -f "$YUL_FILE" ]]; then
-    if [[ -f Counter.yul ]]; then
-        mv Counter.yul counter.yul
-    else
-        YUL_FILE=$(ls *.yul 2>/dev/null | head -n 1 || true)
-        if [[ -n "$YUL_FILE" && "$YUL_FILE" != "counter.yul" ]]; then
-            mv "$YUL_FILE" counter.yul
-            YUL_FILE="counter.yul"
-        fi
-    fi
-fi
-if [[ ! -f "$YUL_FILE" ]]; then
+YUL_FILE=$(ls *.yul 2>/dev/null | head -n 1 || true)
+if [[ -z "$YUL_FILE" ]]; then
     echo "ERROR: no .yul file was generated" >&2
     exit 1
 fi
-
-$YUL2WASM_PATH --input counter.yul --output counter.wasm $YUL2WASM_EXTRA_ARGS
-wasm2wat -o counter.wat counter.wasm
+echo "Using $YUL_FILE -> ${BASE_NAME}.wasm"
+$YUL2WASM_PATH --input "$YUL_FILE" --output "${BASE_NAME}.wasm" $YUL2WASM_EXTRA_ARGS
+wasm2wat -o "${BASE_NAME}.wat" "${BASE_NAME}.wasm"
