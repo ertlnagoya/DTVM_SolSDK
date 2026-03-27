@@ -9,11 +9,9 @@ echo "Rust version: $(rustc --version)"
 echo "Cargo version: $(cargo --version)"
 
 echo "=== Step 1: Install solc (Solidity Compiler) ==="
-apt-get update
-apt-get install -y software-properties-common
-add-apt-repository -y ppa:ethereum/ethereum
-apt-get update
-apt-get install -y solc
+wget https://github.com/ethereum/solidity/releases/download/v0.8.30/solc-static-linux
+chmod +x solc-static-linux
+sudo mv solc-static-linux /usr/bin/solc
 
 echo "=== Step 2: Download dependencies ==="
 ./download_deps.sh
@@ -47,7 +45,7 @@ cd stdlib
 make release
 cd ..
 
-echo "=== Step 6: Build project with cargo ==="
+echo "=== Step 5: Build project with cargo ==="
 SKIP_DEV_MAKE=1 cargo build --release
 
 echo "=== Initialization complete! ==="
