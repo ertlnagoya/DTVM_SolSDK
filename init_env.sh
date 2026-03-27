@@ -20,7 +20,27 @@ echo "=== Step 3: Set environment variables ==="
 export CLANG_RT_LIB=$(pwd)/lib/wasi
 export RUSTFLAGS="-L $CLANG_RT_LIB"
 
-echo "=== Step 4: Build stdlib ==="
+echo "=== Step 4: Generate .cargo/config.toml ==="
+mkdir -p .cargo
+cat <<EOF > .cargo/config.toml
+[build]
+target = "wasm32-unknown-unknown"
+
+[net]
+# この設定によりミラー無効化（公式 crates.io を使用）
+git-fetch-with-cli = true
+
+[source.crates-io]
+registry = "https://github.com/rust-lang/crates.io-index"
+
+[target.wasm32-unknown-unknown]
+rustflags = [
+  "-L", "$(pwd)/lib/wasi",
+  "-Clinker=wasm-ld"
+]
+EOF
+
+echo "=== Step 5: Build stdlib ==="
 cd stdlib
 make release
 cd ..

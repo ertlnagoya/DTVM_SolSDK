@@ -21,5 +21,5 @@ fi
 
 solc --ir --optimize-yul -o ./out --overwrite simple_erc20.sol
 
-$YUL2WASM_PATH --input out/SimpleToken.yul --output my_erc20.wasm $YUL2WASM_EXTRA_ARGS
+$YUL2WASM_PATH --input out/simpleToken.yul --output my_erc20.wasm $YUL2WASM_EXTRA_ARGS
 wasm2wat -o my_erc20.wat my_erc20.wasm
